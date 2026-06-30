@@ -511,6 +511,21 @@
 
     .aws-notice-text strong { color: #fdba74; }
 
+    .aws-options {
+      list-style: none;
+      margin-top: 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .aws-options li {
+      padding: 6px 10px;
+      background: rgba(251,146,60,0.05);
+      border: 1px solid rgba(251,146,60,0.12);
+      border-radius: 6px;
+    }
+
     .aws-notice-close {
       flex-shrink: 0;
       background: none;
@@ -565,27 +580,6 @@
     </svg>
     <h1>MinisunPi Installer</h1>
     <p>Automated Raspberry Pi branch deployment</p>
-  </div>
-
-  <!-- AWS Free Tier Notice -->
-  <div class="aws-notice" id="aws-notice">
-    <div class="aws-notice-left">
-      <div class="aws-notice-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-      </div>
-      <div class="aws-notice-body">
-        <div class="aws-notice-title">AWS Free Tier expires <span id="aws-expiry-date"></span> <span class="aws-badge" id="aws-days-left"></span></div>
-        <div class="aws-notice-text">
-          When it expires this server will stop working. You can:
-          <strong>① Create a new AWS account</strong> with a different email for another 12 free months &nbsp;·&nbsp;
-          <strong>② Move to Render / Railway</strong> (both have free hosting) &nbsp;·&nbsp;
-          <strong>③ Pay ~$8/mo</strong> to keep this server running.
-        </div>
-      </div>
-    </div>
-    <button class="aws-notice-close" onclick="document.getElementById('aws-notice').style.display='none'" title="Dismiss">✕</button>
   </div>
 
   <!-- Tab switcher -->
@@ -707,6 +701,29 @@
     <h2 style="font-size:.9rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">Installation Log</h2>
     <div id="log"></div>
     <div id="done-banner">✓ Installation complete!</div>
+  </div>
+
+  <!-- AWS Free Tier Notice -->
+  <div class="aws-notice" id="aws-notice">
+    <div class="aws-notice-left">
+      <div class="aws-notice-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="aws-notice-body">
+        <div class="aws-notice-title">AWS Free Tier expires <span id="aws-expiry-date"></span> <span class="aws-badge" id="aws-days-left"></span></div>
+        <div class="aws-notice-text">
+          When it expires this server will stop working. Your options:
+          <ul class="aws-options">
+            <li><strong>① New AWS account</strong> — sign up with a different email for another 12 free months</li>
+            <li><strong>② Azure / Google Cloud</strong> — both have Israel regions and free trial credits to use</li>
+            <li><strong>③ Pay ~$8/mo</strong> — keep this exact server running on AWS</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="aws-notice-close" onclick="document.getElementById('aws-notice').style.display='none'" title="Dismiss">✕</button>
   </div>
 
   <hr class="divider" />
