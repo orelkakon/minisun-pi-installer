@@ -66,4 +66,4 @@ async def install(params: InstallParams):
         ):
             yield event
 
-    return EventSourceResponse(stream())
+    return EventSourceResponse(stream(), sep="\n")

@@ -31,6 +31,30 @@ async def run_installation(ip, port, user, password, bid):
         exit_code = chan.recv_exit_status()
         return output.decode("utf-8", errors="replace"), exit_code
 
+    async def ssh_stream(step, name, cmd, result):
+        chan = ssh.get_transport().open_session()
+        chan.get_pty()
+        chan.exec_command(cmd)
+        output = b""
+        chan.setblocking(False)
+        while True:
+            await asyncio.sleep(0.3)
+            try:
+                chunk = chan.recv(4096)
+            except Exception:
+                chunk = None
+            if chunk:
+                output += chunk
+                text = chunk.decode("utf-8", errors="replace")
+                last_line = [l for l in text.splitlines() if l.strip()]
+                if last_line:
+                    yield _event(step, name, "running", last_line[-1])
+            else:
+                if chan.exit_status_ready():
+                    break
+        result["exit_code"] = chan.recv_exit_status()
+        result["output"] = output.decode("utf-8", errors="replace")
+
     # ── Step 1: SSH ──────────────────────────────────────────────────────────
     yield _event(1, "Verify SSH Connection", "running")
     try:
@@ -44,19 +68,21 @@ async def run_installation(ip, port, user, password, bid):
         return
 
     # ── Step 2: apt update + upgrade ─────────────────────────────────────────
-    yield _event(2, "System Update & Upgrade", "running", "This may take a few minutes...")
+    yield _event(2, "System Update & Upgrade", "running", "Starting system update...")
     try:
-        out, code = await loop.run_in_executor(
-            None,
-            lambda: ssh_run(
-                "sudo dpkg --configure -a --force-confdef && "
-                "sudo apt-get install -f -y && "
-                "sudo apt-get update -y && "
-                "sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y"
-            ),
-        )
-        if code != 0:
-            yield _event(2, "System Update & Upgrade", "error", out[-500:])
+        result = {}
+        async for event in ssh_stream(
+            2, "System Update & Upgrade",
+            "sudo DEBIAN_FRONTEND=noninteractive dpkg --configure -a "
+            '--force-confdef --force-confold 2>/dev/null; '
+            "sudo apt-get update -y && "
+            "sudo DEBIAN_FRONTEND=noninteractive APT_LISTCHANGES_FRONTEND=none apt-get upgrade -y "
+            '-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"',
+            result
+        ):
+            yield event
+        if result.get("exit_code", 1) != 0:
+            yield _event(2, "System Update & Upgrade", "error", result.get("output", "")[-500:])
             return
         yield _event(2, "System Update & Upgrade", "ok", "Packages updated successfully")
     except Exception as e:
