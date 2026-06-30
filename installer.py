@@ -48,7 +48,12 @@ async def run_installation(ip, port, user, password, bid):
     try:
         out, code = await loop.run_in_executor(
             None,
-            lambda: ssh_run("sudo apt-get update -y && sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y"),
+            lambda: ssh_run(
+                "sudo dpkg --configure -a --force-confdef && "
+                "sudo apt-get install -f -y && "
+                "sudo apt-get update -y && "
+                "sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y"
+            ),
         )
         if code != 0:
             yield _event(2, "System Update & Upgrade", "error", out[-500:])
