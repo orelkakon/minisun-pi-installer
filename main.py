@@ -34,6 +34,11 @@ async def root():
         return f.read()
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 @app.post("/check-connection")
 async def check_connection(params: CheckParams):
     loop = asyncio.get_event_loop()

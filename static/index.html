@@ -502,10 +502,22 @@
 
     let logVisible = false;
 
+    // ── Pre-warm server on page load ─────────────────────────────────────────
+    fetch('/health').catch(() => {});
+
     // ── Check connection ─────────────────────────────────────────────────────
     const checkForm   = document.getElementById('check-form');
     const checkResult = document.getElementById('check-result');
     const checkBtn    = document.getElementById('check-btn');
+
+    function showResult(status, html) {
+      const icon = status === 'ok'
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>`
+        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`;
+      checkResult.className = status;
+      checkResult.style.display = 'flex';
+      checkResult.innerHTML = `${icon} <span>${html}</span>`;
+    }
 
     checkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -513,6 +525,16 @@
       checkBtn.textContent = 'Testing…';
       checkResult.style.display = 'none';
       checkResult.className = '';
+
+      // Show "waking up" hint after 4 seconds with no response
+      const wakeupHint = setTimeout(() => {
+        showResult('error', 'Server is waking up (free tier cold start). Please wait a moment and try again…');
+        checkBtn.disabled = false;
+        checkBtn.textContent = 'Test Connection';
+      }, 15000);
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 14000);
 
       const payload = {
         ip:       document.getElementById('c-ip').value.trim(),
@@ -526,19 +548,20 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          signal: controller.signal,
         });
+        clearTimeout(wakeupHint);
         const data = await res.json();
-
-        checkResult.className    = data.status;
-        checkResult.style.display = 'flex';
-        checkResult.innerHTML = data.status === 'ok'
-          ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg> ${data.message}`
-          : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg> ${data.message}`;
+        showResult(data.status, data.message);
       } catch (err) {
-        checkResult.className = 'error';
-        checkResult.style.display = 'flex';
-        checkResult.textContent = err.message;
+        clearTimeout(wakeupHint);
+        if (err.name === 'AbortError') {
+          showResult('error', 'Server is waking up (free tier cold start). Please wait a moment and try again.');
+        } else {
+          showResult('error', `Network error: ${err.message}`);
+        }
       } finally {
+        clearTimeout(timeout);
         checkBtn.disabled = false;
         checkBtn.textContent = 'Test Connection';
       }
@@ -584,6 +607,12 @@
 
     installForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const ip  = document.getElementById('ip').value.trim();
+      const bid = document.getElementById('bid').value.trim();
+      const confirmed = confirm(`Start full installation on ${ip} with Branch ID ${bid}?\n\nThis will update the system, upload files, overwrite /etc/rc.local, and reboot the Pi.`);
+      if (!confirmed) return;
+
       submitBtn.disabled = true;
       submitBtn.textContent = 'Installing…';
       logEl.innerHTML = '';
