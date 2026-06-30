@@ -10,6 +10,8 @@ echo "Uploading files..."
 scp -i "$KEY" -o StrictHostKeyChecking=no \
   main.py installer.py requirements.txt \
   ubuntu@$EC2_IP:~/app/
+scp -i "$KEY" -o StrictHostKeyChecking=no -r \
+  static ubuntu@$EC2_IP:~/app/
 
 echo "Stopping old server..."
 $SSH "pkill -f 'uvicorn main:app' 2>/dev/null; exit 0" || true
