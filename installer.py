@@ -217,14 +217,14 @@ exit 0
         yield _event(9, "GPIO Version Check", "ok", "Version is 0.7.1a4 — no downgrade needed")
 
     # ── Step 12: Reboot ───────────────────────────────────────────────────────
-    yield _event(10, "Reboot Pi", "running", "Rebooting — waiting 75 seconds for Pi to come back...")
+    yield _event(10, "Reboot Pi", "running", "Rebooting — waiting 3 minutes for Pi to come back and start services...")
     try:
         await loop.run_in_executor(None, lambda: ssh_run("sudo reboot"))
     except Exception:
         pass  # connection drop on reboot is expected
 
     ssh.close()
-    await asyncio.sleep(75)
+    await asyncio.sleep(200)
 
     # ── Step 13: Reconnect + verify service ───────────────────────────────────
     yield _event(10, "Reboot Pi", "ok", "Reboot triggered — reconnecting...")
