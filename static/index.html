@@ -4,21 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MinisunPi Installer</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><g stroke='%23f59e0b' stroke-width='6' stroke-linecap='round'><line x1='50' y1='4' x2='50' y2='19'/><line x1='50' y1='81' x2='50' y2='96'/><line x1='4' y1='50' x2='19' y2='50'/><line x1='81' y1='50' x2='96' y2='50'/><line x1='18' y1='18' x2='28' y2='28'/><line x1='72' y1='72' x2='82' y2='82'/><line x1='82' y1='18' x2='72' y2='28'/><line x1='28' y1='72' x2='18' y2='82'/></g><circle cx='50' cy='50' r='24' fill='%23f59e0b'/><circle cx='50' cy='50' r='16' fill='%23fde68a'/></svg>" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --sun: #f59e0b;
-      --sun-light: #fde68a;
-      --bg: #0f172a;
-      --card: #1e293b;
-      --border: #334155;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --ok: #10b981;
-      --error: #ef4444;
-      --running: #60a5fa;
-      --radius: 12px;
+      --sun:    #f59e0b;
+      --sun2:   #fb923c;
+      --bg:     #0a0f1e;
+      --card:   #131c30;
+      --card2:  #1a2540;
+      --border: #2a3a55;
+      --text:   #eef2ff;
+      --muted:  #7e93b8;
+      --dim:    #3d5275;
+      --ok:     #10b981;
+      --error:  #f43f5e;
+      --info:   #60a5fa;
+      --radius: 14px;
     }
 
     body {
@@ -29,169 +32,204 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 16px 60px;
+      padding: 36px 16px 64px;
+      position: relative;
     }
+
+    /* ambient sun glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 560px; height: 420px;
+      background: radial-gradient(ellipse, rgba(245,158,11,0.08) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body > * { position: relative; z-index: 1; }
 
     /* ── Logo ─────────────────────────────────────────────────────────────── */
     .logo-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 32px;
+      gap: 10px;
+      margin-bottom: 28px;
     }
 
-    .sun-icon {
-      width: 72px;
-      height: 72px;
-      animation: spin-slow 20s linear infinite;
-    }
-
-    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .sun-icon { width: 64px; height: 64px; animation: spin-slow 22s linear infinite; }
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
 
     .logo-wrap h1 {
-      font-size: 2rem;
-      font-weight: 700;
+      font-size: 1.85rem;
+      font-weight: 800;
       letter-spacing: -0.5px;
-      background: linear-gradient(135deg, var(--sun), #fb923c);
+      background: linear-gradient(135deg, var(--sun) 30%, var(--sun2));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .logo-wrap p {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
+    .logo-wrap p { color: var(--muted); font-size: 0.85rem; }
 
     /* ── Tab switcher ─────────────────────────────────────────────────────── */
     .tab-switcher {
       display: flex;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 11px;
       padding: 4px;
       width: 100%;
-      max-width: 480px;
-      margin-bottom: 20px;
+      max-width: 460px;
+      margin-bottom: 16px;
       gap: 4px;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 9px 12px;
-      border-radius: 7px;
+      padding: 8px 10px;
+      border-radius: 8px;
       border: none;
       background: transparent;
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.18s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
+      gap: 6px;
     }
 
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--sun), #fb923c);
-      color: #0f172a;
-    }
-
-    .tab-btn:not(.active):hover { background: var(--border); color: var(--text); }
+    .tab-btn.active { background: linear-gradient(135deg, var(--sun), var(--sun2)); color: #0f172a; }
+    .tab-btn:not(.active):hover { background: var(--card2); color: var(--text); }
 
     /* ── Card ─────────────────────────────────────────────────────────────── */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 28px;
+      padding: 22px 22px 20px;
       width: 100%;
-      max-width: 480px;
+      max-width: 460px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .card + .card { margin-top: 20px; }
-
-    .card-header { margin-bottom: 20px; }
-
-    .card-header h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 6px;
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 5%, var(--sun) 40%, var(--sun2) 60%, transparent 95%);
     }
 
-    .card-brief {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
+    .card + .card { margin-top: 16px; }
 
-    /* ── Form ─────────────────────────────────────────────────────────────── */
-    .field { margin-bottom: 16px; }
+    .card-header { margin-bottom: 16px; }
+
+    .card-header h2 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+
+    .card-brief { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Form fields ──────────────────────────────────────────────────────── */
+    .field { margin-bottom: 11px; }
 
     .field label {
       display: block;
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 6px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      color: var(--dim);
+      margin-bottom: 5px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
 
-    .field input {
+    .input-wrap { position: relative; }
+
+    .input-ico {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px; height: 14px;
+      stroke: var(--dim);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+      transition: stroke 0.15s;
+    }
+
+    .input-wrap:focus-within .input-ico { stroke: var(--sun); }
+
+    .input-wrap input {
       width: 100%;
-      background: var(--bg);
+      background: var(--card2);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 9px 12px 9px 32px;
       color: var(--text);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    .field input:focus { border-color: var(--sun); }
-    .field input::placeholder { color: #475569; }
+    .input-wrap input:focus {
+      border-color: var(--sun);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
+    }
 
-    .row { display: flex; gap: 12px; }
+    .input-wrap input::placeholder { color: var(--dim); }
+
+    .row { display: flex; gap: 10px; }
     .row .field { flex: 1; }
 
+    /* ── Button ───────────────────────────────────────────────────────────── */
     .btn-primary {
       width: 100%;
-      margin-top: 8px;
-      padding: 12px;
-      background: linear-gradient(135deg, var(--sun), #fb923c);
+      margin-top: 6px;
+      padding: 11px;
+      background: linear-gradient(135deg, var(--sun), var(--sun2));
       color: #0f172a;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.92rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 4px 18px rgba(245,158,11,0.22);
     }
 
-    .btn-primary:hover  { opacity: 0.9; }
+    .btn-primary:hover  { opacity: 0.92; box-shadow: 0 4px 24px rgba(245,158,11,0.32); }
     .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
     /* ── Connection result ────────────────────────────────────────────────── */
     #check-result {
       display: none;
-      margin-top: 16px;
+      margin-top: 12px;
       border-radius: 8px;
-      padding: 14px 16px;
-      font-size: 0.88rem;
+      padding: 11px 14px;
+      font-size: 0.83rem;
       font-weight: 500;
-      display: none;
-      align-items: center;
-      gap: 10px;
+      align-items: flex-start;
+      gap: 9px;
+      line-height: 1.4;
     }
 
-    #check-result.ok    { background: rgba(16,185,129,0.1); border: 1px solid var(--ok);    color: var(--ok);   }
-    #check-result.error { background: rgba(239,68,68,0.1);  border: 1px solid var(--error); color: var(--error); }
+    #check-result.ok    { background: rgba(16,185,129,0.09);  border: 1px solid rgba(16,185,129,0.3);  color: #6ee7b7; }
+    #check-result.error { background: rgba(244,63,94,0.09);   border: 1px solid rgba(244,63,94,0.3);   color: #fda4af; }
+
+    #check-result svg { flex-shrink: 0; margin-top: 1px; }
 
     /* ── Install log ──────────────────────────────────────────────────────── */
     #log-card { display: none; }
@@ -199,20 +237,18 @@
     .step-item {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      padding: 12px 0;
+      gap: 11px;
+      padding: 11px 0;
       border-bottom: 1px solid var(--border);
     }
     .step-item:last-child { border-bottom: none; }
 
-    .step-icon { width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px; }
-
+    .step-icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
     .step-body { flex: 1; min-width: 0; }
+    .step-name { font-weight: 600; font-size: 0.88rem; }
+    .step-output { color: var(--muted); font-size: 0.76rem; margin-top: 3px; white-space: pre-wrap; word-break: break-word; }
 
-    .step-name { font-weight: 600; font-size: 0.92rem; }
-    .step-output { color: var(--muted); font-size: 0.8rem; margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
-
-    .status-running .step-name { color: var(--running); }
+    .status-running .step-name { color: var(--info); }
     .status-ok      .step-name { color: var(--ok); }
     .status-error   .step-name { color: var(--error); }
 
@@ -221,112 +257,90 @@
 
     #done-banner {
       display: none;
-      margin-top: 16px;
-      background: rgba(16,185,129,0.12);
-      border: 1px solid var(--ok);
+      margin-top: 14px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
       border-radius: 8px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       text-align: center;
       color: var(--ok);
       font-weight: 600;
+      font-size: 0.9rem;
     }
 
     /* ── Divider ──────────────────────────────────────────────────────────── */
     .divider {
       width: 100%;
-      max-width: 480px;
+      max-width: 460px;
       border: none;
       border-top: 1px solid var(--border);
-      margin: 36px 0 28px;
+      margin: 32px 0 24px;
     }
 
     /* ── Footer ───────────────────────────────────────────────────────────── */
-    footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.82rem;
-      line-height: 1;
+    footer { text-align: center; }
+
+    .footer-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sun), var(--sun2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 800; color: #0f172a;
+      margin: 0 auto 10px;
     }
 
-    .footer-author {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .footer-name {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: 0.01em;
-    }
-
-    .footer-title {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
+    .footer-name { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .footer-title { font-size: 0.77rem; color: var(--muted); margin-top: 3px; }
 
     .footer-links {
       display: flex;
-      gap: 14px;
+      gap: 10px;
       justify-content: center;
-      margin-top: 6px;
+      margin-top: 10px;
     }
 
     .footer-links a {
-      color: var(--sun);
+      color: var(--muted);
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 500;
-      transition: opacity 0.15s;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      transition: all 0.15s;
     }
 
-    .footer-links a:hover { opacity: 0.8; text-decoration: underline; }
+    .footer-links a:hover { border-color: var(--sun); color: var(--sun); }
+    .footer-links svg { width: 13px; height: 13px; fill: currentColor; }
 
-    .footer-links svg { width: 15px; height: 15px; fill: var(--sun); }
-
-    .footer-stack {
-      font-size: 0.75rem;
-      color: #475569;
-      margin-top: 14px;
-    }
-
-    .footer-copy {
-      font-size: 0.75rem;
-      color: #475569;
-      margin-top: 6px;
-    }
-
-    .dot { margin: 0 5px; opacity: 0.4; }
+    .footer-stack { font-size: 0.72rem; color: var(--dim); margin-top: 14px; }
+    .footer-copy  { font-size: 0.72rem; color: var(--dim); margin-top: 4px; }
+    .dot { margin: 0 4px; opacity: 0.4; }
 
     /* ── Mobile ───────────────────────────────────────────────────────────── */
-    @media (max-width: 520px) {
+    @media (max-width: 500px) {
       body { padding: 20px 12px 48px; }
 
-      .logo-wrap { margin-bottom: 24px; gap: 8px; }
-      .sun-icon  { width: 56px; height: 56px; }
-      .logo-wrap h1 { font-size: 1.55rem; }
-      .logo-wrap p  { font-size: 0.82rem; }
+      .logo-wrap { margin-bottom: 20px; gap: 8px; }
+      .sun-icon  { width: 52px; height: 52px; }
+      .logo-wrap h1 { font-size: 1.45rem; }
 
-      .tab-switcher { margin-bottom: 14px; }
-      .tab-btn { font-size: 0.82rem; padding: 10px 8px; }
+      .tab-btn { font-size: 0.8rem; padding: 9px 8px; }
 
-      .card { padding: 20px 16px; border-radius: 10px; }
+      .card { padding: 18px 16px; }
 
       .row { flex-direction: column; gap: 0; }
       .row .field[style*="max-width"] { max-width: 100% !important; }
 
-      .field input { font-size: 16px; /* prevents iOS zoom */ padding: 12px 14px; }
+      .input-wrap input { font-size: 16px; padding: 11px 12px 11px 32px; }
 
-      .btn-primary { padding: 14px; font-size: 0.95rem; }
+      .btn-primary { padding: 13px; }
 
-      .footer-links { flex-wrap: wrap; gap: 10px; }
-      .footer-stack { font-size: 0.72rem; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
     }
   </style>
 </head>
@@ -336,19 +350,14 @@
   <div class="logo-wrap">
     <svg class="sun-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <g stroke="#f59e0b" stroke-width="5" stroke-linecap="round">
-        <line x1="50" y1="5"  x2="50" y2="18"/>
-        <line x1="50" y1="82" x2="50" y2="95"/>
-        <line x1="5"  y1="50" x2="18" y2="50"/>
-        <line x1="82" y1="50" x2="95" y2="50"/>
-        <line x1="17" y1="17" x2="26" y2="26"/>
-        <line x1="74" y1="74" x2="83" y2="83"/>
-        <line x1="83" y1="17" x2="74" y2="26"/>
-        <line x1="26" y1="74" x2="17" y2="83"/>
+        <line x1="50" y1="5"  x2="50" y2="18"/><line x1="50" y1="82" x2="50" y2="95"/>
+        <line x1="5"  y1="50" x2="18" y2="50"/><line x1="82" y1="50" x2="95" y2="50"/>
+        <line x1="17" y1="17" x2="26" y2="26"/><line x1="74" y1="74" x2="83" y2="83"/>
+        <line x1="83" y1="17" x2="74" y2="26"/><line x1="26" y1="74" x2="17" y2="83"/>
       </g>
       <circle cx="50" cy="50" r="22" fill="#f59e0b"/>
-      <circle cx="50" cy="50" r="16" fill="#fde68a"/>
-      <text x="50" y="56" text-anchor="middle" font-size="18" font-weight="bold"
-            fill="#92400e" font-family="serif">π</text>
+      <circle cx="50" cy="50" r="15" fill="#fde68a"/>
+      <text x="50" y="56" text-anchor="middle" font-size="17" font-weight="bold" fill="#92400e" font-family="serif">π</text>
     </svg>
     <h1>MinisunPi Installer</h1>
     <p>Automated Raspberry Pi branch deployment</p>
@@ -357,14 +366,14 @@
   <!-- Tab switcher -->
   <div class="tab-switcher">
     <button class="tab-btn active" id="tab-check" onclick="switchTab('check')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/>
         <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/>
       </svg>
       Check Connection
     </button>
     <button class="tab-btn" id="tab-install" onclick="switchTab('install')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
         <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
       </svg>
@@ -372,72 +381,105 @@
     </button>
   </div>
 
-  <!-- ── Check Connection form ───────────────────────────────────────────── -->
+  <!-- ── Check Connection ────────────────────────────────────────────────── -->
   <div class="card" id="panel-check">
     <div class="card-header">
       <h2>Check Connection</h2>
-      <p class="card-brief">Verify that your Raspberry Pi is reachable over SSH before starting a full installation. Enter the connection details below and click Test — no changes will be made to your device.</p>
+      <p class="card-brief">Verify your Raspberry Pi is reachable over SSH before starting an installation. No changes will be made to your device.</p>
     </div>
     <form id="check-form">
       <div class="row">
         <div class="field">
           <label>IP Address</label>
-          <input type="text" id="c-ip" placeholder="192.168.1.50" required />
+          <div class="input-wrap">
+            <svg class="input-ico" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <input type="text" id="c-ip" placeholder="192.168.1.50" required />
+          </div>
         </div>
-        <div class="field" style="max-width:100px">
+        <div class="field" style="max-width:95px">
           <label>Port</label>
-          <input type="number" id="c-port" value="22" required />
+          <div class="input-wrap">
+            <svg class="input-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <input type="number" id="c-port" value="22" required />
+          </div>
         </div>
       </div>
       <div class="field">
         <label>Username</label>
-        <input type="text" id="c-user" placeholder="pi" required />
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="c-user" placeholder="pi" required />
+        </div>
       </div>
       <div class="field">
         <label>Password</label>
-        <input type="password" id="c-password" placeholder="••••••••" required />
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="c-password" placeholder="••••••••" required />
+        </div>
       </div>
-      <button type="submit" class="btn-primary" id="check-btn">Test Connection</button>
+      <button type="submit" class="btn-primary" id="check-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg>
+        Test Connection
+      </button>
     </form>
     <div id="check-result"></div>
   </div>
 
-  <!-- ── Install form ────────────────────────────────────────────────────── -->
+  <!-- ── Install ─────────────────────────────────────────────────────────── -->
   <div class="card" id="panel-install" style="display:none">
     <div class="card-header">
       <h2>Install Minisun</h2>
-      <p class="card-brief">Fully automated step-by-step installation of the Minisun branch on your Raspberry Pi — updates, license generation, file upload, startup config, GPIO validation, and reboot. Watch the live log below as each step completes.</p>
+      <p class="card-brief">Full automated installation — system update, license generation, file upload, startup config, GPIO check, and reboot. Watch the live log as each step runs.</p>
     </div>
     <form id="install-form">
       <div class="row">
         <div class="field">
           <label>IP Address</label>
-          <input type="text" id="ip" placeholder="192.168.1.50" required />
+          <div class="input-wrap">
+            <svg class="input-ico" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <input type="text" id="ip" placeholder="192.168.1.50" required />
+          </div>
         </div>
-        <div class="field" style="max-width:100px">
+        <div class="field" style="max-width:95px">
           <label>Port</label>
-          <input type="number" id="port" value="22" required />
+          <div class="input-wrap">
+            <svg class="input-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <input type="number" id="port" value="22" required />
+          </div>
         </div>
       </div>
       <div class="field">
         <label>Username</label>
-        <input type="text" id="user" placeholder="pi" required />
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="user" placeholder="pi" required />
+        </div>
       </div>
       <div class="field">
         <label>Password</label>
-        <input type="password" id="password" placeholder="••••••••" required />
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" placeholder="••••••••" required />
+        </div>
       </div>
       <div class="field">
         <label>Branch ID (BID)</label>
-        <input type="text" id="bid" placeholder="e.g. 42" required />
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+          <input type="text" id="bid" placeholder="e.g. 42" required />
+        </div>
       </div>
-      <button type="submit" class="btn-primary" id="submit-btn">Install Now</button>
+      <button type="submit" class="btn-primary" id="submit-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        Install Now
+      </button>
     </form>
   </div>
 
-  <!-- Log card (install only) -->
+  <!-- Log -->
   <div class="card" id="log-card">
-    <h2 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:20px">Installation Log</h2>
+    <h2 style="font-size:.9rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">Installation Log</h2>
     <div id="log"></div>
     <div id="done-banner">✓ Installation complete!</div>
   </div>
@@ -446,51 +488,32 @@
 
   <!-- Footer -->
   <footer>
-    <div class="footer-author">
-      <span class="footer-name">Orel Kakon</span>
-      <span class="footer-title">Full Stack Developer &amp; IoT Enthusiast</span>
-      <div class="footer-links">
-        <a href="https://linkedin.com/in/orelkakon" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853
-            0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9
-            1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337
-            7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063
-            2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0
-            .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24
-            23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-          </svg>
-          LinkedIn
-        </a>
-        <a href="https://github.com/orelkakon" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205
-            11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724
-            -4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084
-            -.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305
-            3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93
-            0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322
-            3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552
-            3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91
-            1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0
-            1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24
-            17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-          </svg>
-          GitHub
-        </a>
-      </div>
+    <div class="footer-avatar">OK</div>
+    <div class="footer-name">Orel Kakon</div>
+    <div class="footer-title">Full Stack Developer &amp; IoT Enthusiast</div>
+    <div class="footer-links">
+      <a href="https://linkedin.com/in/orelkakon" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <a href="https://github.com/orelkakon" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        GitHub
+      </a>
     </div>
     <div class="footer-stack">
-      Built with <strong>FastAPI</strong> <span class="dot">·</span>
-      <strong>Paramiko</strong> <span class="dot">·</span>
-      <strong>Render</strong> <span class="dot">·</span>
-      <strong>Claude AI</strong>
+      Built with <strong>FastAPI</strong><span class="dot">·</span><strong>Paramiko</strong><span class="dot">·</span><strong>Render</strong><span class="dot">·</span><strong>Claude AI</strong>
     </div>
     <div class="footer-copy">© 2026 MinisunPi Installer — All rights reserved.</div>
   </footer>
 
   <script>
+    // Pre-warm server
+    fetch('/health').catch(() => {});
+
     // ── Tab switcher ─────────────────────────────────────────────────────────
+    let logVisible = false;
+
     function switchTab(tab) {
       const isCheck = tab === 'check';
       document.getElementById('tab-check').classList.toggle('active', isCheck);
@@ -500,70 +523,60 @@
       document.getElementById('log-card').style.display      = isCheck ? 'none'  : (logVisible ? 'block' : 'none');
     }
 
-    let logVisible = false;
-
-    // ── Pre-warm server on page load ─────────────────────────────────────────
-    fetch('/health').catch(() => {});
-
     // ── Check connection ─────────────────────────────────────────────────────
     const checkForm   = document.getElementById('check-form');
     const checkResult = document.getElementById('check-result');
     const checkBtn    = document.getElementById('check-btn');
 
-    function showResult(status, html) {
+    function showResult(status, msg) {
       const icon = status === 'ok'
-        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>`
-        : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`;
+        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>`
+        : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`;
       checkResult.className = status;
       checkResult.style.display = 'flex';
-      checkResult.innerHTML = `${icon} <span>${html}</span>`;
+      checkResult.innerHTML = `${icon}<span>${msg}</span>`;
     }
 
     checkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       checkBtn.disabled = true;
-      checkBtn.textContent = 'Testing…';
+      checkBtn.innerHTML = `<svg width="15" height="15" class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-opacity=".25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Testing…`;
       checkResult.style.display = 'none';
-      checkResult.className = '';
 
-      // Show "waking up" hint after 4 seconds with no response
-      const wakeupHint = setTimeout(() => {
-        showResult('error', 'Server is waking up (free tier cold start). Please wait a moment and try again…');
+      const wakeup = setTimeout(() => {
+        showResult('error', 'Server is waking up (free tier cold start). Please wait a moment and try again.');
         checkBtn.disabled = false;
-        checkBtn.textContent = 'Test Connection';
+        checkBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg> Test Connection`;
       }, 15000);
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 14000);
-
-      const payload = {
-        ip:       document.getElementById('c-ip').value.trim(),
-        port:     parseInt(document.getElementById('c-port').value),
-        user:     document.getElementById('c-user').value.trim(),
-        password: document.getElementById('c-password').value,
-      };
+      const ctrl = new AbortController();
+      const to   = setTimeout(() => ctrl.abort(), 14000);
 
       try {
         const res  = await fetch('/check-connection', {
-          method: 'POST',
+          method: 'POST', signal: ctrl.signal,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
+          body: JSON.stringify({
+            ip:       document.getElementById('c-ip').value.trim(),
+            port:     parseInt(document.getElementById('c-port').value),
+            user:     document.getElementById('c-user').value.trim(),
+            password: document.getElementById('c-password').value,
+          }),
         });
-        clearTimeout(wakeupHint);
+        clearTimeout(wakeup);
         const data = await res.json();
         showResult(data.status, data.message);
       } catch (err) {
-        clearTimeout(wakeupHint);
+        clearTimeout(wakeup);
         if (err.name === 'AbortError') {
           showResult('error', 'Server is waking up (free tier cold start). Please wait a moment and try again.');
         } else {
           showResult('error', `Network error: ${err.message}`);
         }
       } finally {
-        clearTimeout(timeout);
+        clearTimeout(to);
         checkBtn.disabled = false;
-        checkBtn.textContent = 'Test Connection';
+        checkBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg> Test Connection`;
       }
     });
 
@@ -575,9 +588,9 @@
     const submitBtn   = document.getElementById('submit-btn');
 
     const ICONS = {
-      running: `<svg class="step-icon spinner" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>`,
+      running: `<svg class="step-icon spinner" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-opacity=".25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>`,
       ok:      `<svg class="step-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>`,
-      error:   `<svg class="step-icon" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`,
+      error:   `<svg class="step-icon" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`,
     };
 
     const stepEls = {};
@@ -593,12 +606,7 @@
       } else {
         const el = document.createElement('div');
         el.className = `step-item status-${status}`;
-        el.innerHTML = `
-          <div class="step-icon-wrap">${ICONS[status] || ''}</div>
-          <div class="step-body">
-            <div class="step-name">${name}</div>
-            <div class="step-output">${output || ''}</div>
-          </div>`;
+        el.innerHTML = `<div class="step-icon-wrap">${ICONS[status] || ''}</div><div class="step-body"><div class="step-name">${name}</div><div class="step-output">${output || ''}</div></div>`;
         logEl.appendChild(el);
         stepEls[step] = el;
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -610,30 +618,26 @@
 
       const ip  = document.getElementById('ip').value.trim();
       const bid = document.getElementById('bid').value.trim();
-      const confirmed = confirm(`Start full installation on ${ip} with Branch ID ${bid}?\n\nThis will update the system, upload files, overwrite /etc/rc.local, and reboot the Pi.`);
-      if (!confirmed) return;
+      if (!confirm(`Start full installation on ${ip} with Branch ID ${bid}?\n\nThis will update the system, upload files, overwrite /etc/rc.local, and reboot the Pi.`)) return;
 
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Installing…';
+      submitBtn.innerHTML = `<svg width="15" height="15" class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-opacity=".25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Installing…`;
       logEl.innerHTML = '';
       doneEl.style.display = 'none';
       Object.keys(stepEls).forEach(k => delete stepEls[k]);
       logCard.style.display = 'block';
       logVisible = true;
 
-      const payload = {
-        ip:       document.getElementById('ip').value.trim(),
-        port:     parseInt(document.getElementById('port').value),
-        user:     document.getElementById('user').value.trim(),
-        password: document.getElementById('password').value,
-        bid:      document.getElementById('bid').value.trim(),
-      };
-
       try {
         const res = await fetch('/install', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            ip, port: parseInt(document.getElementById('port').value),
+            user: document.getElementById('user').value.trim(),
+            password: document.getElementById('password').value,
+            bid,
+          }),
         });
 
         const reader  = res.body.getReader();
@@ -644,10 +648,8 @@
           const { done, value } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
-
           const parts = buffer.split('\n\n');
           buffer = parts.pop();
-
           for (const part of parts) {
             const line = part.split('\n').find(l => l.startsWith('data: '));
             if (!line) continue;
@@ -664,7 +666,7 @@
         upsertStep({ step: 0, name: 'Connection Error', status: 'error', output: err.message });
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Install Now';
+        submitBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Install Now`;
       }
     });
   </script>
