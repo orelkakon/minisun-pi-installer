@@ -71,15 +71,34 @@ async def run_installation(ip, port, user, password, bid):
     yield _event(2, "System Update & Upgrade", "running", "Starting system update...")
     try:
         result = {}
-        async for event in ssh_stream(
-            2, "System Update & Upgrade",
-            "sudo DEBIAN_FRONTEND=noninteractive dpkg --configure -a "
-            '--force-confdef --force-confold 2>/dev/null; '
-            "sudo apt-get update -y && "
-            "sudo DEBIAN_FRONTEND=noninteractive APT_LISTCHANGES_FRONTEND=none apt-get upgrade -y "
-            '-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"',
-            result
-        ):
+        cmd = """
+set -e
+
+# Wait for any running apt/dpkg to finish (handles re-run after dropped connection)
+i=0
+while fuser /var/lib/dpkg/lock-frontend \
+            /var/lib/dpkg/lock \
+            /var/cache/apt/archives/lock >/dev/null 2>&1; do
+    i=$((i+1))
+    if [ $i -ge 360 ]; then
+        echo "APT lock timeout after 30 minutes"
+        exit 1
+    fi
+    echo "Waiting for apt lock... ($i/360)"
+    sleep 5
+done
+
+# Fix any interrupted dpkg state (lock is free, safe to run)
+sudo DEBIAN_FRONTEND=noninteractive dpkg --configure -a --force-confdef --force-confold
+
+sudo apt-get update -y
+
+sudo DEBIAN_FRONTEND=noninteractive APT_LISTCHANGES_FRONTEND=none \\
+    apt-get upgrade -y \\
+    -o Dpkg::Options::="--force-confdef" \\
+    -o Dpkg::Options::="--force-confold"
+"""
+        async for event in ssh_stream(2, "System Update & Upgrade", cmd, result):
             yield event
         if result.get("exit_code", 1) != 0:
             yield _event(2, "System Update & Upgrade", "error", result.get("output", "")[-500:])
