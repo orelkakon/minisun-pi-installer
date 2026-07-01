@@ -280,14 +280,23 @@ exit 0
             chan.recv_exit_status()
             return out.decode("utf-8", errors="replace")
 
-        ps_out = await loop.run_in_executor(None, check_service)
+        # Poll for the service — rc.local sleeps 180s after boot, so give it time
+        ps_out = ""
+        service_found = False
+        for poll_attempt in range(12):  # up to ~2 extra minutes
+            ps_out = await loop.run_in_executor(None, check_service)
+            lines = [l for l in ps_out.splitlines() if "gpio_server" in l and "grep" not in l]
+            if lines:
+                service_found = True
+                break
+            await asyncio.sleep(10)
+
         ssh2.close()
 
-        lines = [l for l in ps_out.splitlines() if "gpio_server" in l and "grep" not in l]
-        if lines:
+        if service_found:
             yield _event(11, "Verify Service Running", "ok", f"gpio_server is running:\n{lines[0]}")
         else:
-            yield _event(11, "Verify Service Running", "error", "gpio_server not found in process list — check logs manually")
+            yield _event(11, "Verify Service Running", "error", "gpio_server not found in process list.\n\nRun this on the Pi to check manually:\n  ps aux | grep gpio_server")
     except Exception as e:
         yield _event(11, "Verify Service Running", "error", str(e))
         return
